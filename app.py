@@ -26,11 +26,13 @@ st.markdown("Ask a question about Ethiopian history. The assistant will search t
 
 query = st.text_input("Your question:", "")
 top_k = st.slider("Top-K chunks", min_value=1, max_value=5, value=2)
-threshold = st.slider("Similarity threshold (distance; lower = more similar)", min_value=0.0, max_value=1.0, value=0.4, step=0.05)
+threshold = st.slider("Distance threshold (lower = more similar)", min_value=0.0, max_value=1.5, value=1.0, step=0.05)
 
 if st.button("Get Answer") and query.strip():
     with st.spinner("Retrieving and generating answer..."):
-        results = vector_db.similarity_search_with_score(query, k=top_k*3)
+        results = vector_db.similarity_search_with_score(query, k=top_k*5)
+        # Make retrieval deterministic across runs: sort by ascending distance (None goes last)
+        results = sorted(results, key=lambda x: (x[1] is None, x[1]))
         # Filter by threshold and deduplicate
         unique_contexts = []
         seen = set()
@@ -52,7 +54,7 @@ if st.button("Get Answer") and query.strip():
             else:
                 try:
                     from langchain_groq import ChatGroq
-                    llm = ChatGroq(api_key=groq_key, model="llama-3.1-8b-instant")
+                    llm = ChatGroq(api_key=groq_key, model="llama-3.1-8b-instant", temperature=0)
                     response = llm.invoke(prompt)
                     # Only show the main answer content
                     answer_text = getattr(response, "content", None) or response.get("content", None) or str(response)

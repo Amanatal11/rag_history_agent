@@ -4,18 +4,21 @@ from vectordb_and_ingestion import VectorDBManager
 from prompt_builder import build_prompt
 from logger import logger
 
-def retrieve_relevant_chunks(vector_db, query, top_k=2, similarity_threshold=0.7):
+def retrieve_relevant_chunks(vector_db, query, top_k=2, similarity_threshold=1.0):
     """
     Retrieve top-k relevant chunks above a similarity threshold, removing duplicates.
     """
     if not vector_db:
         logger.error("Vector DB not initialized.")
         return []
-    results = vector_db.similarity_search_with_score(query, k=top_k*3)
+    results = vector_db.similarity_search_with_score(query, k=top_k*5)
+    # Sort by ascending distance for determinism
+    results = sorted(results, key=lambda x: (x[1] is None, x[1]))
     unique_contexts = []
     seen = set()
     for doc, score in results:
-        if score is not None and score < similarity_threshold:
+        # Distance metric: lower is more similar. Filter out distances greater than threshold.
+        if score is not None and score > similarity_threshold:
             continue
         if doc.page_content not in seen:
             seen.add(doc.page_content)
@@ -45,7 +48,7 @@ def respond_to_query(query, top_k=2, similarity_threshold=0.7):
         return "No relevant information found."
     prompt = build_prompt(query, docs)
     try:
-        llm = ChatGroq(api_key=groq_key, model="llama-3.1-8b-instant")
+        llm = ChatGroq(api_key=groq_key, model="llama-3.1-8b-instant", temperature=0)
         answer = llm.invoke(prompt)
         logger.info(f"Query: {query}\nAnswer: {answer}")
         return answer

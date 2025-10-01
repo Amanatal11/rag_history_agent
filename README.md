@@ -42,6 +42,16 @@ python -c "from wiki_fetcher import fetch_and_save_page; fetch_and_save_page('Ax
 streamlit run app.py
 ```
 
+## Screenshots
+
+Answer not found (out-of-scope question):
+
+![No answer available](assets/screenshots/not-found.png)
+
+Answer found from context:
+
+![Answer found](assets/screenshots/answer-found.png)
+
 ### CLI Usage
 ```bash
 python retrieval_and_response.py "Who was Menelik II?" --top_k 2 --threshold 0.7
@@ -106,5 +116,3 @@ beautifulsoup4
 ## License
 Provided as-is for educational purposes. Add a license of your choice for distribution or commercial use.
 
-## Contributing
-Issues and pull requests are welcome. Please include a concise description, steps to reproduce (if applicable), and proposed changes.
