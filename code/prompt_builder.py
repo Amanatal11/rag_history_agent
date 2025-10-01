@@ -18,3 +18,4 @@ def build_prompt(query, docs):
         f"Answer:"
     )
     return prompt
+

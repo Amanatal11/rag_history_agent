@@ -3,12 +3,12 @@ from langchain_community.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from logger import logger
+from code.logger import logger
+
 
 class VectorDBManager:
-    """
-    Handles chunking, embedding, and persistent vector DB.
-    """
+    """Handles chunking, embedding, and persistent vector DB."""
+
     def __init__(self, data_dir="data", persist_dir="chroma_db", collection_name="ethiopian_history"):
         self.data_dir = data_dir
         self.persist_dir = persist_dir
@@ -17,9 +17,7 @@ class VectorDBManager:
         self.vector_db = None
 
     def embed_and_insert(self, chunk_size=1000, chunk_overlap=200):
-        """
-        Chunk and embed all .txt files in data_dir, insert into ChromaDB.
-        """
+        """Chunk and embed all .txt files in data_dir, insert into ChromaDB."""
         docs = []
         splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         for fname in os.listdir(self.data_dir):
@@ -50,9 +48,7 @@ class VectorDBManager:
             logger.warning("No valid .txt files found for embedding.")
 
     def load_db(self):
-        """
-        Load the vector DB from disk.
-        """
+        """Load the vector DB from disk."""
         if not self.vector_db:
             try:
                 self.vector_db = Chroma(
@@ -68,3 +64,4 @@ class VectorDBManager:
         if not self.vector_db:
             self.load_db()
         return self.vector_db
+

@@ -1,23 +1,20 @@
 import os
 from dotenv import load_dotenv
-from vectordb_and_ingestion import VectorDBManager
-from prompt_builder import build_prompt
-from logger import logger
+from code.vectordb_and_ingestion import VectorDBManager
+from code.prompt_builder import build_prompt
+from code.logger import logger
+
 
 def retrieve_relevant_chunks(vector_db, query, top_k=2, similarity_threshold=1.0):
-    """
-    Retrieve top-k relevant chunks above a similarity threshold, removing duplicates.
-    """
+    """Retrieve top-k relevant chunks under the distance threshold, deduplicated."""
     if not vector_db:
         logger.error("Vector DB not initialized.")
         return []
-    results = vector_db.similarity_search_with_score(query, k=top_k*5)
-    # Sort by ascending distance for determinism
+    results = vector_db.similarity_search_with_score(query, k=top_k * 5)
     results = sorted(results, key=lambda x: (x[1] is None, x[1]))
     unique_contexts = []
     seen = set()
     for doc, score in results:
-        # Distance metric: lower is more similar. Filter out distances greater than threshold.
         if score is not None and score > similarity_threshold:
             continue
         if doc.page_content not in seen:
@@ -27,10 +24,9 @@ def retrieve_relevant_chunks(vector_db, query, top_k=2, similarity_threshold=1.0
             break
     return unique_contexts
 
-def respond_to_query(query, top_k=2, similarity_threshold=0.7):
-    """
-    Retrieve relevant chunks and generate a concise answer using Groq LLM.
-    """
+
+def respond_to_query(query, top_k=2, similarity_threshold=1.0):
+    """Retrieve relevant chunks and generate a concise answer using Groq LLM."""
     load_dotenv()
     groq_key = os.getenv("GROQ_API_KEY")
     if not groq_key:
@@ -56,13 +52,16 @@ def respond_to_query(query, top_k=2, similarity_threshold=0.7):
         logger.error(f"Groq API error: {e}")
         return f"Error: {e}"
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Ethiopian History RAG CLI")
     parser.add_argument("query", type=str, help="Your question about Ethiopian history")
     parser.add_argument("--top_k", type=int, default=2, help="Number of top chunks to retrieve")
-    parser.add_argument("--threshold", type=float, default=0.7, help="Similarity threshold")
+    parser.add_argument("--threshold", type=float, default=1.0, help="Distance threshold (lower = more similar)")
     args = parser.parse_args()
 
     answer = respond_to_query(args.query, top_k=args.top_k, similarity_threshold=args.threshold)
     print("\nAnswer:\n", answer)
+
