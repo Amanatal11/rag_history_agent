@@ -39,7 +39,7 @@ printf "GROQ_API_KEY=your_key_here\n" > .env
 python -c "from wiki_fetcher import fetch_and_save_page; fetch_and_save_page('Axum Empire')"
 
 # 5) Run the Streamlit app
-streamlit run app.py
+streamlit run code/app.py
 ```
 
 ## Screenshots
@@ -54,7 +54,7 @@ Answer found from context:
 
 ### CLI Usage
 ```bash
-python retrieval_and_response.py "Who was Menelik II?" --top_k 2 --threshold 0.7
+python -m code.retrieval_and_response "Who was Menelik II?" --top_k 2 --threshold 1.0
 ```
 
 ## Environment Variables

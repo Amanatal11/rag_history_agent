@@ -1,5 +1,6 @@
 import logging
 
+
 def setup_logger(name="rag_logger", level=logging.INFO):
     logger = logging.getLogger(name)
     if not logger.handlers:
@@ -10,4 +11,6 @@ def setup_logger(name="rag_logger", level=logging.INFO):
     logger.setLevel(level)
     return logger
 
+
 logger = setup_logger()
+

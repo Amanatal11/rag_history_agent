@@ -1,23 +1,29 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from vectordb_and_ingestion import VectorDBManager
-from prompt_builder import build_prompt
-from logger import logger
+from code.vectordb_and_ingestion import VectorDBManager
+from code.prompt_builder import build_prompt
+from code.logger import logger
 
+
+# Streamlit page setup
 st.set_page_config(page_title="Ethiopian History RAG Assistant", layout="centered")
 st.title("Ethiopian History RAG Assistant")
 
+# Load environment variables
 load_dotenv()
 groq_key = os.getenv("GROQ_API_KEY")
 
+
 @st.cache_resource(show_spinner=True)
 def get_db_manager():
+    """Initialize and load the vector database (embed on first run)."""
     dbm = VectorDBManager()
     dbm.load_db()
     if not dbm.vector_db:
         dbm.embed_and_insert()
     return dbm
+
 
 db_manager = get_db_manager()
 vector_db = db_manager.get_vector_db()
@@ -30,14 +36,13 @@ threshold = st.slider("Distance threshold (lower = more similar)", min_value=0.0
 
 if st.button("Get Answer") and query.strip():
     with st.spinner("Retrieving and generating answer..."):
-        results = vector_db.similarity_search_with_score(query, k=top_k*5)
-        # Make retrieval deterministic across runs: sort by ascending distance (None goes last)
+        results = vector_db.similarity_search_with_score(query, k=top_k * 5)
+        # Sort by ascending distance for determinism
         results = sorted(results, key=lambda x: (x[1] is None, x[1]))
         # Filter by threshold and deduplicate
         unique_contexts = []
         seen = set()
         for doc, score in results:
-            # For Chroma distances: lower is more similar. Filter out items with distance > threshold.
             if score is not None and score > threshold:
                 continue
             if doc.page_content not in seen:
@@ -54,12 +59,13 @@ if st.button("Get Answer") and query.strip():
             else:
                 try:
                     from langchain_groq import ChatGroq
+
                     llm = ChatGroq(api_key=groq_key, model="llama-3.1-8b-instant", temperature=0)
                     response = llm.invoke(prompt)
-                    # Only show the main answer content
                     answer_text = getattr(response, "content", None) or response.get("content", None) or str(response)
                     logger.info(f"Query: {query}\nAnswer: {answer_text}")
                     st.subheader("Answer")
                     st.write(answer_text)
                 except Exception as e:
                     st.error(f"Groq API error: {e}")
+
