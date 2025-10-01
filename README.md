@@ -44,13 +44,13 @@ streamlit run app.py
 
 ## Screenshots
 
+Answer found from context 
+(<img width="800" height="608" alt="Screenshot from 2025-10-01 11-32-50" src="https://github.com/user-attachments/assets/392a5dbd-ae5e-4934-8edb-6e8e3b79a805" />
+
 Answer not found (out-of-scope question):
 
-![No answer available](assets/screenshots/not-found.png)
+<img width="800" height="608" alt="Screenshot from 2025-10-01 11-34-15" src="https://github.com/user-attachments/assets/baa4041e-a550-4e3a-b891-e3f3b60bb599" />
 
-Answer found from context:
-
-![Answer found](assets/screenshots/answer-found.png)
 
 ### CLI Usage
 ```bash
