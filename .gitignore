@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+.env
+
+# OS / editor
+*.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Chroma/Vector stores
+chroma_db/
+chroma_store/
+
+# Streamlit cache
+.streamlit/
+
+# Logs
+*.log
+
+
