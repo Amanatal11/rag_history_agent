@@ -26,7 +26,7 @@ st.markdown("Ask a question about Ethiopian history. The assistant will search t
 
 query = st.text_input("Your question:", "")
 top_k = st.slider("Top-K chunks", min_value=1, max_value=5, value=2)
-threshold = st.slider("Similarity threshold", min_value=0.0, max_value=1.0, value=0.7, step=0.05)
+threshold = st.slider("Similarity threshold (distance; lower = more similar)", min_value=0.0, max_value=1.0, value=0.4, step=0.05)
 
 if st.button("Get Answer") and query.strip():
     with st.spinner("Retrieving and generating answer..."):
@@ -35,7 +35,8 @@ if st.button("Get Answer") and query.strip():
         unique_contexts = []
         seen = set()
         for doc, score in results:
-            if score is not None and score < threshold:
+            # For Chroma distances: lower is more similar. Filter out items with distance > threshold.
+            if score is not None and score > threshold:
                 continue
             if doc.page_content not in seen:
                 seen.add(doc.page_content)
